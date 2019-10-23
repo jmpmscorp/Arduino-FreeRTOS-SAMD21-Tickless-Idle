@@ -154,12 +154,12 @@ void setup()
   attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), buttonISR, FALLING);
 
 
-  /* Feed EIC(External Interrupt Controller) with GCLK2(OSCULP32K defined in Arduino Core)
-   * OSCULP32K is ALWAYS RUNNING. It allows to wake up MCU from standby mode 
+  /* Feed EIC(External Interrupt Controller) with GCLK1(XOSC32K defined in Arduino Core)
+   * and SET in freeRTOS port as RUNNING IN STANDBY. It allows to wake up MCU from standby mode 
    * with an external interrupt, i.e. with a button attached, like this example.
    */
   GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(GCM_EIC) |
-                      GCLK_CLKCTRL_GEN_GCLK2 |
+                      GCLK_CLKCTRL_GEN_GCLK1 |
                       GCLK_CLKCTRL_CLKEN;
 
   while(GCLK->STATUS.bit.SYNCBUSY);
@@ -194,7 +194,7 @@ void setup()
   xTaskCreate(taskMonitor, "Task Monitor", 256, NULL, tskIDLE_PRIORITY + 1, &Handle_monitorTask);
 
   // Start the RTOS, this function will never return and will schedule the tasks.
-  vTaskStartScheduler();
+	vTaskStartScheduler();
 
 }
 
