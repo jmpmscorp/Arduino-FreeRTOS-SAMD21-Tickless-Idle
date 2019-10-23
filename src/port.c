@@ -145,6 +145,8 @@ static void prvTaskExitError( void );
 
 /*-----------------------------------------------------------*/
 
+void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTime );
+
 /*
  * See header file for description.
  */
