@@ -4,7 +4,7 @@ Arduino FreeRTOS port, based on [BriscoeTech port](https://github.com/BriscoeTec
 
 # Considerations
 
-During Standby Mode, Systick Timer is stopped because it is fed with CPU clock and CPU clock clock is stopped too. So, we need another rtos tick generator that could be keep running in standby mode. 
+During Standby Mode, Systick Timer is stopped because it is fed with CPU clock and it is stopped too. So, we need another rtos tick generator that could be keep running in standby mode. 
 
 This port use Timer 7 (TC7) as rtos tick generator. In order to save power, I have fed TC7 with internal OSCULP32K. This clock is not too much accurate, so, If you want to have better timing accuracy, feel free to change it to another clock but take in mind that It will increase power consumption.
 
