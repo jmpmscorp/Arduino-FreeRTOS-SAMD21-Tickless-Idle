@@ -22,5 +22,3 @@ While you are testing examples, if you want to upload another example or code ch
 I have tested examples with:
     - Sodaq Autonomo (SAMD21J18A)
     - Arduino MKR GSM 1400 (SAMD21G18A)
-=======
->>>>>>> 658736bdc33f2592fef761c4e5e5eed205d43b56
