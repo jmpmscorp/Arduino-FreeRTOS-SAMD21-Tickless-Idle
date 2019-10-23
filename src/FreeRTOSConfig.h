@@ -85,7 +85,7 @@
 
  
 #define configUSE_PREEMPTION			1
-#define configUSE_IDLE_HOOK				0
+#define configUSE_IDLE_HOOK				1
 #define configUSE_TICK_HOOK				0
 #define configUSE_TICKLESS_IDLE         1
 #define configEXPECTED_IDLE_TIME_BEFORE_SLEEP   500

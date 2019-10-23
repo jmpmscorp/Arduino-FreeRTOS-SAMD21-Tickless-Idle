@@ -204,5 +204,5 @@ void setup()
 //*****************************************************************
 void loop() 
 {
-    // With Tickless Idle enable, no Idle hook is called
+  SERIAL.print('.');
 }
