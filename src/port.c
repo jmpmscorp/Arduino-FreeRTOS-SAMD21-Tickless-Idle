@@ -386,20 +386,20 @@ volatile bool timer_sleep_mode = false;
 volatile bool timer_sleep_mode_overflow = false;
 
 void configure_tc_systick_timer(void) {
-	TC7->COUNT16.CC[0].reg = TIMER_RELOAD_VALUE_ONE_TICK - 1; 
-	while(TC7->COUNT16.STATUS.bit.SYNCBUSY);
+	TC3->COUNT16.CC[0].reg = TIMER_RELOAD_VALUE_ONE_TICK - 1; 
+	while(TC3->COUNT16.STATUS.bit.SYNCBUSY);
 
-	REG_TC7_COUNT16_COUNT = 0;
+	REG_TC3_COUNT16_COUNT = 0;
 	timer_sleep_mode = false;
 }
 
 void configure_tc_sleep_timer(uint16_t counterValue) {
 	
 
-	TC7->COUNT16.CC[0].reg = counterValue > 1 ? counterValue - 1 : 1; 
-	while(TC7->COUNT16.STATUS.bit.SYNCBUSY);
+	TC3->COUNT16.CC[0].reg = counterValue > 1 ? counterValue - 1 : 1; 
+	while(TC3->COUNT16.STATUS.bit.SYNCBUSY);
 
-	REG_TC7_COUNT16_COUNT = 0;
+	REG_TC3_COUNT16_COUNT = 0;
 
 	timer_sleep_mode = true;
 	timer_sleep_mode_overflow = false;		// Prevent to not attended overflow
@@ -429,7 +429,7 @@ __attribute__(( weak )) void vPortSetupTimerInterrupt( void )
 	while(GCLK->STATUS.bit.SYNCBUSY);
 
 	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_GEN_GCLK7 |
-						GCLK_CLKCTRL_ID_TC6_TC7 |
+						GCLK_CLKCTRL_ID_TCC2_TC3 |
 						GCLK_CLKCTRL_CLKEN;
 
 	while(GCLK->STATUS.bit.SYNCBUSY);
@@ -438,32 +438,32 @@ __attribute__(( weak )) void vPortSetupTimerInterrupt( void )
     // PORT->Group[g_APinDescription[6].ulPort].PMUX[g_APinDescription[6].ulPin >> 1].reg |= 	PORT_PMUX_PMUXO_H;
 
 
-	PM->APBCMASK.bit.TC7_ = 1;
+	PM->APBCMASK.bit.TC3_ = 1;
 
-	TC7->COUNT16.CTRLA.reg = TC_CTRLA_MODE_COUNT16 | TC_CTRLA_PRESCALER_DIV1 | TC_CTRLA_WAVEGEN_MFRQ;
-	while(TC7->COUNT16.STATUS.bit.SYNCBUSY);		
+	TC3->COUNT16.CTRLA.reg = TC_CTRLA_MODE_COUNT16 | TC_CTRLA_PRESCALER_DIV1 | TC_CTRLA_WAVEGEN_MFRQ;
+	while(TC3->COUNT16.STATUS.bit.SYNCBUSY);		
 	
 
-	TC7->COUNT16.CTRLA.bit.RUNSTDBY = 1;
-	while(TC7->COUNT16.STATUS.bit.SYNCBUSY);
+	TC3->COUNT16.CTRLA.bit.RUNSTDBY = 1;
+	while(TC3->COUNT16.STATUS.bit.SYNCBUSY);
 
-	TC7->COUNT16.INTENSET.reg = TC_INTENSET_OVF;
+	TC3->COUNT16.INTENSET.reg = TC_INTENSET_OVF;
 	
-	// REG_TC7_READREQ = TC_READREQ_RCONT |            // Enable a continuous read request
+	// REG_TC3_READREQ = TC_READREQ_RCONT |            // Enable a continuous read request
                     // TC_READREQ_ADDR(0x10);        // Offset of the 16 bit COUNT register
 
-	NVIC_SetPriority(TC7_IRQn, 3);	
-	NVIC_EnableIRQ(TC7_IRQn);
+	NVIC_SetPriority(TC3_IRQn, 3);	
+	NVIC_EnableIRQ(TC3_IRQn);
 
 	configure_tc_systick_timer();	
 
-	TC7->COUNT16.CTRLA.bit.ENABLE = 1;
-	while(TC7->COUNT16.STATUS.bit.SYNCBUSY);
+	TC3->COUNT16.CTRLA.bit.ENABLE = 1;
+	while(TC3->COUNT16.STATUS.bit.SYNCBUSY);
 }
 
 
-void TC7_Handler() {
-  	if (TC7->COUNT8.INTFLAG.bit.OVF && TC7->COUNT8.INTENSET.bit.OVF)             
+void TC3_Handler() {
+  	if (TC3->COUNT8.INTFLAG.bit.OVF && TC3->COUNT8.INTENSET.bit.OVF)             
 	{
 		if(!timer_sleep_mode) {
 			xPortSysTickHandler();
@@ -471,12 +471,12 @@ void TC7_Handler() {
 			timer_sleep_mode_overflow = true;
 		}
 		
-		REG_TC7_INTFLAG = TC_INTFLAG_OVF;         // Clear the OVF interrupt flag
+		REG_TC3_INTFLAG = TC_INTFLAG_OVF;         // Clear the OVF interrupt flag
 	}
 }
 
 void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTime ) {
-	REG_TC7_INTFLAG = TC_INTFLAG_OVF; 
+	REG_TC3_INTFLAG = TC_INTFLAG_OVF; 
 	
 	// tc_tick_handler = NULL;
 	TickType_t suppressedTicks;
@@ -501,7 +501,7 @@ void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTime ) {
 				timer_sleep_mode_overflow = false;
 			}
 			else {
-				vTaskStepTick(REG_TC7_COUNT16_COUNT / TIMER_RELOAD_VALUE_ONE_TICK);
+				vTaskStepTick(REG_TC3_COUNT16_COUNT / TIMER_RELOAD_VALUE_ONE_TICK);
 			}
 		}
 
