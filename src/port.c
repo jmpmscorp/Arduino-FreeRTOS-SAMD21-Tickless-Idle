@@ -82,7 +82,7 @@
 #define portNVIC_SYSPRI2			( ( volatile uint32_t *) 0xe000ed20 )
 #define portNVIC_SYSTICK_CLK		0x00000004
 #define portNVIC_SYSTICK_INT		0x00000002
-#define portNVIC_SYSTICK_ENABLE		0x00000001
+#define portNVIC_SYSTICK_ENABLE	0x00000001
 #define portNVIC_PENDSVSET			0x10000000
 #define portMIN_INTERRUPT_PRIORITY	( 255UL )
 #define portNVIC_PENDSV_PRI			( portMIN_INTERRUPT_PRIORITY << 16UL )
@@ -495,8 +495,11 @@ void vPortSuppressTicksAndSleep( TickType_t xExpectedIdleTime ) {
 	else {
 		if( xExpectedIdleTime > 0 ) {
 			configure_tc_sleep_timer(suppressedTicks * TIMER_RELOAD_VALUE_ONE_TICK);
+			/* Disable SysTick interrupt before going to sleep and enable it back after the sleep.*/
+			*(portNVIC_SYSTICK_CTRL) &= ~portNVIC_SYSTICK_INT;
 			__DSB();
 			__WFI();
+			*(portNVIC_SYSTICK_CTRL) |= portNVIC_SYSTICK_INT;
 			
 			if(timer_sleep_mode_overflow) {
 				vTaskStepTick(suppressedTicks);
